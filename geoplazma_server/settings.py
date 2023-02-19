@@ -26,6 +26,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '192.168.1.101',
+    '192.168.1.10',
     '89.142.196.96',
 ]
 
@@ -80,8 +81,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'geoplazma',
-        'USER': 'vajnar',
-        'PASSWORD': 'vajnar',
+        'USER': 'geoplazma',
+        'PASSWORD': 'geoplazma',
         'HOST': 'localhost',
         'PORT': ''
     },
