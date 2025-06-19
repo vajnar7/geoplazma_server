@@ -7,7 +7,13 @@ from rest_framework.response import Response
 # noinspection PyMethodMayBeStatic,PyUnusedLocal
 class Areas(APIView):
     permission_classes = (AllowAny,)
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'delete']
+
+    def delete(self, request):
+        area = Area.objects.get(name=request.data['name'])
+        GeoPoint.objects.filter(area=area).delete()
+        area.delete()
+        return Response(dict(response=[], return_code=0))
 
     def get(self, request, f=None):
         res = []

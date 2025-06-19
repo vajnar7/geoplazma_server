@@ -28,6 +28,7 @@ ALLOWED_HOSTS = [
     '192.168.1.101',
     '192.168.1.10',
     '89.142.196.96',
+    '192.168.237.153',
 ]
 
 # Application definition
@@ -81,8 +82,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'geoplazma',
-        'USER': 'geoplazma',
-        'PASSWORD': 'geoplazma',
+        'USER': 'vajnar',
+        'PASSWORD': 'AldebaraN7',
         'HOST': 'localhost',
         'PORT': ''
     },
