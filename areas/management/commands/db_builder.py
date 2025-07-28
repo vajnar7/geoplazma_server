@@ -20,21 +20,17 @@ class Command(BaseCommand):
         kataster = options['kataster']
         user = options['user']
         directory = options['dir']
-        print(kataster, user, directory)
-
         user = MyUser.objects.get(email=user)
         for file in os.listdir(directory):
-            file = os.path.join(directory, file)
-            print(file)
             area_name = file.split('_')
             area_name = area_name[0] + '/' + area_name[1]
-            print(area_name)
-
+            file = os.path.join(directory, file)
             with open(file, 'r', encoding="utf-8") as f:
                 root = parser.parse(f).getroot()
 
             k = Kataster.objects.get(name=kataster)
             a = Area.objects.create(name=area_name, kataster=k)
+            user.area.add(a)
             res = root.Document.Placemark.Polygon.outerBoundaryIs.LinearRing.coordinates.text.strip().split(' ')
             stamp = 0
             for p in res:
