@@ -29,7 +29,7 @@ class Command(BaseCommand):
                 root = parser.parse(f).getroot()
 
             k = Kataster.objects.get(name=kataster)
-            a = Area.objects.create(name=area_name, kataster=k)
+            a = Area.objects.get(name=area_name, kataster=k)
             user.area.add(a)
             res = root.Document.Placemark.Polygon.outerBoundaryIs.LinearRing.coordinates.text.strip().split(' ')
             stamp = 0

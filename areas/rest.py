@@ -1,10 +1,8 @@
-from django.template.context_processors import request
 from rest_framework.views import APIView
 from areas.models import Area, GeoPoint, MyUser, Kataster
 from rest_framework.response import Response
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import get_user_model
 from rest_framework import status
 
 
@@ -35,6 +33,19 @@ class Login(APIView):
             return Response(res, status=status.HTTP_200_OK)
 
         return Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+class LogFile(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, f=None):
+        res = request.data.get("data", "")
+        print(res)
+        with open("demofile.txt", "a") as f:
+            f.write(res)
+        return Response({"result": "OK"}, status=status.HTTP_200_OK)
+
+
 
 
 class Areas(APIView):

@@ -21,7 +21,7 @@ class MyUser(models.Model):
 
 class GeoPoint(models.Model):
     area = models.ForeignKey(Area, verbose_name=_('Območje'), on_delete=models.CASCADE)
-    timestamp = models.BigIntegerField(verbose_name=_('Timestamp'), default=0, unique=True)
+    timestamp = models.BigIntegerField(verbose_name=_('Timestamp'), default=0)
     lon = models.FloatField(verbose_name=_('GEO dolžina'), default=0.0)
     lat = models.FloatField(verbose_name=_('GEO širina'), default=0.0)
 
