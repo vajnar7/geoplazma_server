@@ -18,18 +18,30 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         kataster = options['kataster']
-        user = options['user']
+        email = options['user']
         directory = options['dir']
-        user = MyUser.objects.get(email=user)
+        if MyUser.objects.filter(email=email).exists():
+            user = MyUser.objects.get(email=email)
+        else:
+            user = MyUser.objects.create(email=email)
+
         for file in os.listdir(directory):
             area_name = file.split('_')
             area_name = area_name[0] + '/' + area_name[1]
             file = os.path.join(directory, file)
             with open(file, 'r', encoding="utf-8") as f:
                 root = parser.parse(f).getroot()
+            # define kataster object
+            if Kataster.objects.filter(name=kataster).exists():
+                k = Kataster.objects.get(name=kataster)
+            else:
+                k = Kataster.objects.create(name=kataster)
+            # define area object
+            if Area.objects.filter(name=area_name, kataster=k).exists():
+                a = Area.objects.get(name=area_name, kataster=k)
+            else:
+                a = Area.objects.create(name=area_name, kataster=k)
 
-            k = Kataster.objects.get(name=kataster)
-            a = Area.objects.get(name=area_name, kataster=k)
             user.area.add(a)
             res = root.Document.Placemark.Polygon.outerBoundaryIs.LinearRing.coordinates.text.strip().split(' ')
             stamp = 0

@@ -1,9 +1,17 @@
+import subprocess
+import os
+
 from rest_framework.views import APIView
 from areas.models import Area, GeoPoint, MyUser, Kataster
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from pathlib import Path
+
+from geoplazma_server.ntrip_client import start_ntrip_client, stop_ntrip_client
+
+logfile = "logfile.txt"
 
 
 def is_user_valid(request, login=False):
@@ -22,6 +30,7 @@ def is_user_valid(request, login=False):
 
     return None
 
+
 class Login(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -34,6 +43,7 @@ class Login(APIView):
 
         return Response(res, status=status.HTTP_400_BAD_REQUEST)
 
+
 class LogFile(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -41,11 +51,30 @@ class LogFile(APIView):
     def post(self, request, f=None):
         res = request.data.get("data", "")
         print(res)
-        with open("demofile.txt", "a") as f:
+        if Path(logfile).exists():
+            Path(logfile).unlink()
+        with open(logfile, "a") as f:
             f.write(res)
+
+        os.environ["PYTHONPATH"] = "/home/vajnar/Projects/android_rinex"
+        subprocess.run(["/home/vajnar/Projects/android_rinex/bin/gnsslogger_to_rnx", "--output", "rover.obs", logfile])
+
         return Response({"result": "OK"}, status=status.HTTP_200_OK)
 
 
+class StartNTRIP(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, f=None):
+        params = request.data.get("params", "")
+
+        if params == "START":
+            start_ntrip_client()
+        else:
+            stop_ntrip_client()
+
+        return Response({"result": "OK"}, status=status.HTTP_200_OK)
 
 
 class Areas(APIView):

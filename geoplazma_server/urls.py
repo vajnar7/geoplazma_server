@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.authtoken import views as auth_views
-from areas.rest import Login, LogFile
+from areas.rest import Login, LogFile, StartNTRIP
 
 urlpatterns = [
+    path('ntrip/', StartNTRIP.as_view(), name='Start NTRIP'),
     path('userlogin/', Login.as_view(), name='Login'),
     path('logfile/', LogFile.as_view(), name='LogFile'),
     path('areas/', include('areas.urls')),
