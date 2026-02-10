@@ -86,9 +86,10 @@ ntripCaster = "rtk2go.com"  # your preferred caster here
 userNamePwd = "xxxx@xxxx.xxxx:none"  # your <email>:<pwd> here
 # no pwd rqd for rtk2go clients, use 'none'
 mountPoint = "FRELIH"  # your preferred mount point here
-myLat, myLon = 46.486149638, 13.825585396  # your local lat/lon here
+myLat, myLon = 46.486149638, 13.825585396  # Gozd Martuljek Zg. Rute 99
+# myLat, myLon = 46.046284984, 14.516882957  # Ljubljana Zemljemerska 12
 myAlt = 752  # your local altitude in metres here
-
+# myAlt = 296  # Ljubljana
 noDataTimeLim = 30  # no-data watch-dog timeout in seconds
 userAgent = "Dumb uPyNTRIP Client/0.2"
 
@@ -243,6 +244,14 @@ def stop_ntrip_client():
 
 def start_ntrip_client():
     global userBreak
+    global ntripSkt
+    global byteCounter
+
+    if not ntripSkt:
+        ntripSkt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    byteCounter = 0
+    userBreak = False
 
     if Path(file).exists():
         Path(file).unlink()
@@ -262,7 +271,7 @@ def start_ntrip_client():
     try:
         assert err == 0
         err = casterConnect(casterAddress)
-        print('---')
+        print('---', err)
 
         while err == 0 and not userBreak:  # ------------------- main loop --------------------
 
@@ -298,6 +307,7 @@ def start_ntrip_client():
         print("\r\n^C user exit")
     try:
         ntripSkt.close()
+        ntripSkt = None
     except:
         pass
 
