@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from pathlib import Path
 
-from geoplazma_server.ntrip_client import start_ntrip_client, stop_ntrip_client
+from geoplazma_server.ntrip_client import start_ntrip_client, stop_ntrip_client, write_rtcm_data
 
 logfile = "logfile.txt"
 posfile = "rover.pos"
@@ -102,6 +102,18 @@ class PrecisePosition(APIView):
 
         # tle se nauc cellery uporabljat
         return Response(dict(lon=0.0, lat=0.0, h=0.0), status.HTTP_200_OK)
+
+
+class BinaryData(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, f=None):
+        res = request.data.get("data", "")
+        bData = bytes(res, "utf-8")
+        write_rtcm_data(bData)
+
+        return Response({"result": "OK"}, status=status.HTTP_200_OK)
 
 
 class StartNTRIP(APIView):

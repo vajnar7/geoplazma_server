@@ -236,6 +236,11 @@ def txfrDataTask():
     return 0  # fa
     # iled to write data
 
+def write_rtcm_data(bData):
+    with open(file, 'wb') as fw:
+        fw.write(bData)
+    subprocess.run(
+        ["/home/vajnar/Projects/RTKLIB/app/consapp/convbin/gcc/convbin", file])
 
 def stop_ntrip_client():
     global userBreak
@@ -312,4 +317,4 @@ def start_ntrip_client():
         pass
 
     subprocess.run(
-        ["/home/vajnar/Projects/RTKLIB/app/consapp/convbin/gcc/convbin", "base.rtcm3"])
+        ["/home/vajnar/Projects/RTKLIB/app/consapp/convbin/gcc/convbin", file])
