@@ -3,7 +3,6 @@ import os
 
 from django.core.management import BaseCommand
 from pykml import parser
-import pandas as pd
 from areas.models import Area, Kataster, GeoPoint, MyUser
 
 

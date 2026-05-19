@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoPlazma - Survey Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Navigation Header -->
+        <header class="navbar">
+            <div class="navbar-brand">
+                <h1>🗺️ GeoPlazma</h1>
+            </div>
+            <div class="navbar-menu">
+                <div id="userInfo" class="user-info">
+                    <span id="userEmail"></span>
+                    <button id="logoutBtn" class="btn btn-danger btn-sm">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="container-main">
+            <!-- Login Section -->
+            <div id="loginSection" class="section-login visible">
+                <div class="login-card">
+                    <h2>Login to GeoPlazma</h2>
+                    <form id="loginForm" class="form">
+                        <div class="form-group">
+                            <label for="emailInput">Email Address:</label>
+                            <input type="email" id="emailInput" class="form-control" placeholder="Enter your email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                    </form>
+                    <div id="loginError" class="alert alert-danger hidden"></div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard -->
+            <div id="dashboardSection" class="section-dashboard hidden">
+                <div class="dashboard-grid">
+                    <!-- Left Sidebar -->
+                    <aside class="sidebar">
+                        <div class="sidebar-section">
+                            <h3>Survey Areas</h3>
+                            <button id="createAreaBtn" class="btn btn-success btn-block">+ Create Area</button>
+                            <div id="areasList" class="areas-list"></div>
+                        </div>
+
+                        <div class="sidebar-section mt-20">
+                            <h3>Tools</h3>
+                            <button id="startNTRIPBtn" class="btn btn-info btn-block">Start NTRIP</button>
+                            <button id="stopNTRIPBtn" class="btn btn-warning btn-block">Stop NTRIP</button>
+                        </div>
+                    </aside>
+
+                    <!-- Main Content Area -->
+                    <main class="main-content">
+                        <!-- Map Section -->
+                        <section class="map-section">
+                            <div id="map" class="map-container"></div>
+                        </section>
+
+                        <!-- Area Details Section -->
+                        <section id="areaDetailsSection" class="area-details hidden">
+                            <div class="details-card">
+                                <h3 id="selectedAreaName"></h3>
+                                <div class="details-info">
+                                    <p><strong>Total Points:</strong> <span id="pointsCount">0</span></p>
+                                    <p><strong>Coordinates Range:</strong></p>
+                                    <ul>
+                                        <li>Latitude: <span id="latRange">N/A</span></li>
+                                        <li>Longitude: <span id="lonRange">N/A</span></li>
+                                    </ul>
+                                </div>
+                                <div class="details-actions">
+                                    <button id="editAreaBtn" class="btn btn-primary">Edit</button>
+                                    <button id="deleteAreaBtn" class="btn btn-danger">Delete</button>
+                                    <button id="exportAreaBtn" class="btn btn-secondary">Export</button>
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Create/Edit Area -->
+        <div id="areaModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="areaModalTitle">Create New Area</h2>
+                <form id="areaForm" class="form">
+                    <div class="form-group">
+                        <label for="areaName">Area Name:</label>
+                        <input type="text" id="areaName" class="form-control" placeholder="Enter area name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="areaDescription">Description:</label>
+                        <textarea id="areaDescription" class="form-control" placeholder="Enter area description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="pointsData">Geospatial Points (JSON):</label>
+                        <textarea id="pointsData" class="form-control" placeholder='[{"timestamp": 0, "lon": 0.0, "lat": 0.0}]' rows="5"></textarea>
+                        <small class="text-muted">Format: Array of objects with timestamp, lon, lat</small>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-block">Save Area</button>
+                    </div>
+                </form>
+                <div id="areaFormError" class="alert alert-danger hidden"></div>
+            </div>
+        </div>
+
+        <!-- Modal: Loading -->
+        <div id="loadingModal" class="modal hidden">
+            <div class="modal-content modal-loading">
+                <div class="spinner"></div>
+                <p id="loadingText">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="notification" class="notification hidden"></div>
+    </div>
+
+    <!-- Third-party Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <!-- Application Scripts -->
+    <script src="{% static 'js/api.js' %}"></script>
+    <script src="{% static 'js/map.js' %}"></script>
+    <script src="{% static 'js/ui.js' %}"></script>
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

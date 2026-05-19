@@ -1,13 +1,23 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework.authtoken import views as auth_views
-from areas.rest import Login, LogFile, StartNTRIP
+from areas.views import IndexView
 
 urlpatterns = [
-    path('ntrip/', StartNTRIP.as_view(), name='Start NTRIP'),
-    path('userlogin/', Login.as_view(), name='Login'),
-    path('logfile/', LogFile.as_view(), name='LogFile'),
-    path('areas/', include('areas.urls')),
-    path('admin/', admin.site.urls),
+    # API endpoints
+    path('api/', include('areas.urls')),
     path('token/', auth_views.obtain_auth_token),
+    
+    # Admin
+    path('admin/', admin.site.urls),
+    
+    # Frontend
+    path('', IndexView.as_view(), name='index'),
 ]
+
+# Serve static files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
