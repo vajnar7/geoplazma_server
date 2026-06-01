@@ -80,6 +80,11 @@ const GeoPlazmaAPI = (function() {
             return apiRequest('POST', '/logout/', { user: email });
         },
 
+        checkStatus: function(email) {
+            // Let apiRequest handle adding user email from localStorage
+            return apiRequest('GET', '/status/', null, false);
+        },
+
         /**
          * Areas Management
          */

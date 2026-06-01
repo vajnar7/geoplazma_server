@@ -11,7 +11,8 @@ $(document).ready(function() {
         currentUser: null,
         areas: [],
         selectedArea: null,
-        isLoggedIn: false
+        isLoggedIn: false,
+        mapInitialized: false
     };
 
     // ============================================
@@ -19,22 +20,36 @@ $(document).ready(function() {
     // ============================================
 
     function initApp() {
-        GeoPlazmaMap.init();
         setupEventListeners();
         checkAuthStatus();
     }
 
     function checkAuthStatus() {
-        const token = GeoPlazmaAPI.getToken();
         const email = localStorage.getItem('userEmail');
 
-        if (token && email) {
-            appState.isLoggedIn = true;
-            appState.currentUser = email;
-            loadDashboard();
-        } else {
+        if (!email) {
             showLoginView();
+            return;
         }
+
+        // Verify with backend that user is still logged in
+        GeoPlazmaAPI.checkStatus(email)
+            .done(function(response) {
+                if (response.logged_in) {
+                    appState.isLoggedIn = true;
+                    appState.currentUser = email;
+                    loadDashboard();
+                } else {
+                    // User email exists but logged_in is false
+                    localStorage.removeItem('userEmail');
+                    GeoPlazmaAPI.clearToken();
+                    showLoginView();
+                }
+            })
+            .fail(function() {
+                // If status check fails, default to login view
+                showLoginView();
+            });
     }
 
     // ============================================
@@ -44,11 +59,25 @@ $(document).ready(function() {
     function showLoginView() {
         UI.showSection('#loginSection');
         appState.isLoggedIn = false;
+        $('#logoutBtn').addClass('hidden');
     }
 
     function showDashboardView() {
         UI.showSection('#dashboardSection');
         appState.isLoggedIn = true;
+        $('#logoutBtn').removeClass('hidden');
+        // Initialize the map when dashboard becomes visible (only once)
+        if (!appState.mapInitialized) {
+            if (window.GeoPlazmaMap && typeof GeoPlazmaMap.init === 'function') {
+                GeoPlazmaMap.init();
+                appState.mapInitialized = true;
+            }
+        }
+
+        // Ensure the Leaflet map resizes to fill the visible container
+        if (window.GeoPlazmaMap && typeof GeoPlazmaMap.invalidateSize === 'function') {
+            GeoPlazmaMap.invalidateSize();
+        }
     }
 
     function loadDashboard() {
@@ -231,6 +260,12 @@ $(document).ready(function() {
     }
 
     function logout() {
+        // Safety check: only logout if actually logged in
+        if (!appState.isLoggedIn || !appState.currentUser) {
+            showLoginView();
+            return;
+        }
+
         if (!confirm('Are you sure you want to logout?')) {
             return;
         }

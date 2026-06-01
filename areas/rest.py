@@ -39,19 +39,22 @@ class AreaSerializer(serializers.ModelSerializer):
 
 def get_user_from_request(request, login=False):
     """Optimized user validation with better error handling."""
-    user_email = request.data.get("user", "").strip()
-    
+    request_data = request.data or {}
+    user_email = str(request_data.get("user", "")).strip() or str(request.query_params.get("user", "")).strip()
+
     if not user_email:
         return None
     
     try:
         my_user = MyUser.objects.get(email=user_email)
         
-        if login and not my_user.logged_in:
-            my_user.logged_in = True
-            my_user.save()
-            # Clear user cache on login
-            cache.delete(f"user_{my_user.id}")
+        if login:
+            # Set logged_in=True if not already set, then return user
+            if not my_user.logged_in:
+                my_user.logged_in = True
+                my_user.save()
+                # Clear user cache on login
+                cache.delete(f"user_{my_user.id}")
             return my_user
         elif not login and my_user.logged_in:
             return my_user
@@ -63,11 +66,10 @@ def get_user_from_request(request, login=False):
 
 
 class Login(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user_email = request.data.get("user", "").strip()
+        request_data = request.data or {}
+        user_email = str(request_data.get("user", "")).strip()
         
         if not user_email:
             return Response(
@@ -89,12 +91,43 @@ class Login(APIView):
         )
 
 
+class Status(APIView):
+
+    def get(self, request):
+        """Check if a user is logged in against the database."""
+        request_data = request.query_params or {}
+        user_email = str(request_data.get("user", "")).strip()
+        
+        if not user_email:
+            return Response(
+                {"logged_in": False, "error": "User email required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            my_user = MyUser.objects.get(email=user_email)
+            return Response(
+                {"logged_in": my_user.logged_in, "user": user_email},
+                status=status.HTTP_200_OK
+            )
+        except MyUser.DoesNotExist:
+            return Response(
+                {"logged_in": False, "user": user_email},
+                status=status.HTTP_200_OK
+            )
+
+
 class Logout(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user_email = request.data.get("user", "").strip()
+        request_data = request.data or {}
+        user_email = str(request_data.get("user", "")).strip() or str(request.query_params.get("user", "")).strip()
+        
+        if not user_email:
+            return Response(
+                {"error": "User email required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         try:
             my_user = MyUser.objects.get(email=user_email)

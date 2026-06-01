@@ -513,6 +513,7 @@ textarea.form-control {
 /* Utility Classes */
 .hidden {
     display: none !important;
+    pointer-events: none !important;
 }
 
 .visible {
